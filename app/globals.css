@@ -24,3 +24,111 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 화면 전환 페이드 + 슬라이드 애니메이션 */
+/* 없어지는 옛 화면: 흐려지며 왼쪽으로 빠짐 */
+::view-transition-old(.page-exit) {
+  animation: page-fade 150ms ease-out both reverse;
+}
+::view-transition-new(.page-enter) {
+  animation: page-fade 220ms ease-in 90ms both;
+}
+
+::view-transition-old(.page-slide) {
+  animation: page-slide-out 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  /* cubic-bezier의 앞 두개는 시작 (0,0)에서 (0.4, 0)으로 천천히 가다가 이후 빠르게 가고 (0.2 ,1)로 z자 좌우 대칭 모양으로 급격히 꺾이고 cubic이라 곡선으로 된다. */
+  /* cubic-bezier는 앞 두개는 시작시 리듬, 뒤 두개는 끝 리듬, both는 상태 유지 */
+}
+/* 나타나는 새 화면: 오른쪽에서 들어오며 또렷해짐 */
+::view-transition-new(.page-slide) {
+  animation: page-slide-in 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+::view-transition-old(.page-fade-slide) {
+  animation:
+    page-fade 150ms ease-out both reverse,
+    page-slide-out 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+/* 나타나는 새 화면: 오른쪽에서 들어오며 또렷해짐 */
+::view-transition-new(.page-fade-slide) {
+  animation:
+    page-fade 220ms ease-in 90ms both,
+    page-slide-in 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* 옛 화면이 왼쪽으로 빠져나감 */
+@keyframes page-slide-out {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -100% 0;
+  }
+}
+
+/* 새 화면이 오른쪽에서 미끄러져 들어옴 */
+@keyframes page-slide-in {
+  from {
+    translate: 100% 0; /* x축 100% 오른쪽 끝 y축 0 제자리 */
+  }
+  to {
+    translate: 0 0; /* 0 0 원래자리 */
+  }
+}
+
+/* 모션 최소화 설정을 켠 사용자에게는 애니메이션 없이 즉시 전환 */
+/* prefers-reduced-motion: reduce가 모션 최소화 기능 켰을때를 나타냄 */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* TipTap 본문 공통 스타일 (에디터/뷰어가 만든 요소는 className을 못 붙여서 선택자로 잡음) */
+.tiptap-content .ProseMirror {
+  outline: none;
+}
+.tiptap-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+.tiptap-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0.75rem 0;
+}
+.tiptap-content ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+.tiptap-content p {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+}
+
+/* 에디터(편집 모드)일 때만 최소 높이 (뷰어는 내용만큼만) */
+.tiptap-editable .ProseMirror {
+  min-height: 200px;
+}
+/* 
+<div class="tiptap-content tiptap-editable p-3">   ← EditorContent가 className을 여기 붙임
+  <div contenteditable="true" class="ProseMirror"> ← 코드엔 없지만 브라우저에서 만들어지기 때문에 적용됨 TipTap(ProseMirror)이 자동 생성
+    <p>글 내용...</p>
+  </div>
+</div>
+ */
