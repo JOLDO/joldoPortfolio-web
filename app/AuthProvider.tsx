@@ -8,6 +8,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 type Auth = {
@@ -19,6 +20,17 @@ type Auth = {
 };
 
 const AuthContext = createContext<Auth | null>(null); //provider로 사용하기 위해서 createContext로 객체를 담을수 있게 만들고 초기값 null을 넣음
+
+// JWT 페이로드에서 exp(만료 시각, 초 단위)를 꺼내 밀리초로 반환. 못 읽으면 null.
+// JWT는 "헤더.페이로드.서명" 3조각이라, 가운데(페이로드)만 base64 디코드해서 읽는다. (검증은 서버가 하므로 여기선 읽기만)
+function getTokenExpiryMs(token: string): number | null {
+  try {
+    const payload = jwtDecode(token); //jwtDecode(token)은 payload을 반환해줌
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
 
 export function AuthProvider({
   children, //layout.tsx에 AuthProvider 내부의 값이 children : <ViewTransition default="page-fade-slide">{children}</ViewTransition>
@@ -71,6 +83,20 @@ export function AuthProvider({
 
     return () => axios.interceptors.response.eject(interceptorId); //메모리에서 인터셉터 제거, 클린업 함수
   }, [logout]);
+
+  // 토큰 만료 시각(exp)에 맞춰 자동 로그아웃. 페이지 로드 시 이미 만료됐으면 즉시 로그아웃.
+  // (읽기 GET은 토큰이 만료돼도 200으로 오기 때문에 위 401/403 인터셉터로는 안 걸린다 → 여기서 직접 처리)
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const token = getToken();
+    const expMs = token ? getTokenExpiryMs(token) : 0; // 토큰이 없으면 즉시 만료(0)로 간주
+    if (expMs === null) return; // 토큰은 있는데 exp를 못 읽으면 그대로 둠(기존 동작 유지)
+
+    // logout(setState)을 effect 본문에서 바로 부르지 않고 타이머로 넘긴다. 이미 만료면 0ms 뒤 실행.
+    const remaining = expMs - Date.now();
+    const timer = setTimeout(logout, Math.max(remaining, 0)); //로그아웃 함수를 남은시간이 다 되면 써라
+    return () => clearTimeout(timer); // 로그아웃/재실행 시 이전 타이머 정리
+  }, [isLoggedIn, getToken, logout]);
 
   return (
     /* null인 AuthContext에 Auth를 넣어서 provider로 제공 */
