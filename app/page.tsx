@@ -56,7 +56,7 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex gap-4">
           {/* 카테고리별 프로젝트 버튼 (team/personal/company) */}
           {CATEGORY_ORDER.map((category) => (
             <Link
@@ -74,11 +74,10 @@ export default function Home() {
               <span aria-hidden>→</span>
             </Link>
           ))}
-
-          {/* 관리자 로그인 (메인 화면) */}
-          <div>
-            <LoginBox />
-          </div>
+        </div>
+        {/* 관리자 로그인 (메인 화면) */}
+        <div>
+          <LoginBox />
         </div>
       </main>
     </div>
