@@ -3,27 +3,32 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import ContentViewer from "../ContentViewer";
-import TiptapEditor from "../TiptapEditor";
-import { useAuth } from "../../AuthProvider";
+import ContentViewer from "../../ContentViewer";
+import TiptapEditor from "../../TiptapEditor";
+import { useAuth } from "../../../AuthProvider";
 import { API } from "@/app/apiBase";
+import { CATEGORIES, isCategory } from "../../projectConfig";
 
-type TeamProjectDetail = {
+type ProjectDetail = {
   id: number;
   title: string;
   summary: string | null;
   content: string | null;
   thumbnailUrl: string | null;
+  published: boolean;
   createdAt: string;
   updatedAt: string;
 };
 
-export default function TeamProjectDetailPage() {
-  const { id } = useParams();
+export default function ProjectDetailPage() {
+  const { category, id } = useParams<{ category: string; id: string }>();
   const router = useRouter();
   const { isLoggedIn, getToken } = useAuth();
 
-  const [project, setProject] = useState<TeamProjectDetail | null>(null);
+  const cfg = isCategory(category) ? CATEGORIES[category] : null;
+  const listHref = `/projects/${category}`;
+
+  const [project, setProject] = useState<ProjectDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // ── 수정 모드 상태 ────────────────────────────────
@@ -33,23 +38,28 @@ export default function TeamProjectDetailPage() {
   const [content, setContent] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [published, setPublished] = useState(true); // 수정폼용: true=공개, false=비공개
   const [busy, setBusy] = useState(false);
 
-  const fetchProject = useCallback(
-    () =>
-      axios
-        .get<TeamProjectDetail>(`${API}/api/team-projects/${id}`)
-        .then((res) => res.data),
-    [id],
-  );
+  // 로그인(관리자)이면 토큰을 실어야 비공개 글도 불러올 수 있다(방문자는 비공개면 404).
+  const fetchProject = useCallback(() => {
+    const token = isLoggedIn ? getToken() : null;
+    return axios
+      .get<ProjectDetail>(
+        `${API}/api/${cfg?.api}/${id}`,
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
+      )
+      .then((res) => res.data);
+  }, [cfg, id, isLoggedIn, getToken]);
 
   useEffect(() => {
+    if (!cfg) return;
     fetchProject()
       .then(setProject)
       .catch(() => setError("불러오기 실패 (없는 프로젝트일 수 있어요)"));
-  }, [fetchProject]);
+  }, [cfg, fetchProject]);
 
-  const goToList = () => router.replace("/teamProject");
+  const goToList = () => router.replace(listHref);
 
   // "수정" 클릭 → 기존 값 세팅 후 편집 모드 진입
   function startEdit() {
@@ -59,18 +69,18 @@ export default function TeamProjectDetailPage() {
     setContent(project.content ?? "");
     setThumbnailFile(null);
     setThumbnailPreview(project.thumbnailUrl);
+    setPublished(project.published);
     setEditing(true);
   }
 
-  // 썸네일 파일 선택 → 메모리 해제 + 파일 유효성 검사 추가
+  // 썸네일 파일 선택 → 미리보기 갱신 + 이전 blob 메모리 해제
   function handleThumbnailChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; //파일 이 변경되었을때 변경한 파일을 변수에 담는다.
-    if (!file) return; // 취소 버튼 눌렀을 때 기존 상태 유지되도록 방어(취소를 누르면 실제적으로 변경은 없지만 원래 가지고 있던 것도 없애버리기 때문에)
+    const file = e.target.files?.[0]; //파일이 변경되었을때 변경한 파일을 변수에 담는다.
+    if (!file) return; // 취소 눌렀을 때 방어(취소해도 원래 갖고 있던 걸 없애버리는 것 방지)
 
     // 기존에 생성된 blob URL이 있다면 메모리 해제 (메모리 누수 방지)
-    //이전에 있을수도 있는 썸네일임시 주소를 메모리에서 해제
-    //썸네일 프리뷰는 처음에는 url에서 읽어와 그리지만 파일 선택은 내 컴퓨터의 파일중에 골라서 하는거기 때문에 외부에서 다운받지 않는 blob:이라는 이름표가 붙음
-    //보통 컴퓨터의 파일은 file://이라고 붙이지만 웹페이지(웹사이트)는 보안상 그 실제 경로를 알 수 없어서 blob:이 사용됨
+    // 썸네일 프리뷰는 처음엔 서버 url로 그리지만, 파일 선택은 내 컴퓨터 파일이라 외부에서 안 받는 blob:이 붙음
+    // 보통 컴퓨터 파일은 file://인데 웹페이지는 보안상 실제 경로를 알 수 없어서 blob:이 사용됨
     if (thumbnailPreview && thumbnailPreview.startsWith("blob:")) {
       URL.revokeObjectURL(thumbnailPreview);
     }
@@ -79,32 +89,27 @@ export default function TeamProjectDetailPage() {
     setThumbnailPreview(URL.createObjectURL(file)); //새로 만듦
   }
 
-  // 저장 요청
+  // 저장 → PUT /api/{cfg.api}/{id}
   async function handleUpdate() {
     const token = getToken();
-    if (!token || !project) return;
-
+    if (!cfg || !token || !project) return;
     setBusy(true);
     setError(null);
-
     try {
       let thumbnailUrl = project.thumbnailUrl;
-
       if (thumbnailFile) {
-        const formData = new FormData(); //file다룰때 formdata로 감싸서 사용
+        const formData = new FormData(); //file 다룰 때 formdata로 감싸서 사용
         formData.append("file", thumbnailFile);
         const up = await axios.post(`${API}/api/images`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         thumbnailUrl = up.data.url; //파일 넣고 나서 썸네일url을 읽어오고
       }
-
       await axios.put(
-        `${API}/api/team-projects/${id}`,
-        { title, summary, content, thumbnailUrl }, //썸네일과 데이터를 넣어줌
+        `${API}/api/${cfg.api}/${id}`,
+        { title, summary, content, thumbnailUrl, published }, //썸네일과 데이터를 넣어줌
         { headers: { Authorization: `Bearer ${token}` } },
       );
-
       // 새 데이터를 먼저 받아 project를 갱신한 뒤 보기모드로 전환한다.
       // (순서를 바꾸면 ContentViewer가 옛 content로 마운트돼 화면이 안 바뀜)
       const fresh = await fetchProject();
@@ -130,7 +135,7 @@ export default function TeamProjectDetailPage() {
         {error && <p className="mt-6 text-red-600">{error}</p>}
         {!error && !project && <p className="mt-6 text-zinc-500">로딩중...</p>}
 
-        {/* ── 1. 수정 모드 ──────────────────────────────── */}
+        {/* ── 수정 모드 ──────────────────────────────── */}
         {project && editing && (
           <section className="mt-6 flex flex-col gap-3">
             <input
@@ -158,7 +163,7 @@ export default function TeamProjectDetailPage() {
               )}
               <input
                 type="file"
-                accept="image/*" //image/jpg 이런식으로 다 들어올수 있게
+                accept="image/*" //image/jpg 등 이미지면 다 들어올 수 있게
                 onChange={handleThumbnailChange}
               />
             </div>
@@ -168,6 +173,15 @@ export default function TeamProjectDetailPage() {
               initialContent={project.content ?? ""}
               onChange={setContent}
             />
+
+            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+              <input
+                type="checkbox"
+                checked={!published}
+                onChange={(e) => setPublished(!e.target.checked)}
+              />
+              🔒 비공개 (작성 중 — 나만 볼 수 있어요)
+            </label>
 
             <div className="flex gap-2 mt-2">
               <button
@@ -187,13 +201,20 @@ export default function TeamProjectDetailPage() {
           </section>
         )}
 
-        {/* ── 2. 보기 모드 ──────────────────────────────── */}
+        {/* ── 보기 모드 ──────────────────────────────── */}
         {project && !editing && (
           <article className="mt-6">
             <div className="flex items-start justify-between gap-4">
-              <h1 className="text-4xl font-semibold tracking-tight text-black dark:text-zinc-50">
-                {project.title}
-              </h1>
+              <div>
+                {project.published === false && (
+                  <span className="mb-2 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                    🔒 비공개 (나만 보임)
+                  </span>
+                )}
+                <h1 className="text-4xl font-semibold tracking-tight text-black dark:text-zinc-50">
+                  {project.title}
+                </h1>
+              </div>
               {isLoggedIn && (
                 <button
                   className="shrink-0 rounded border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900"

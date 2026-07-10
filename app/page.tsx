@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
 import LoginBox from "./LoginBox";
+import { CATEGORIES, CATEGORY_ORDER } from "./projects/projectConfig";
 
 export default function Home() {
   return (
@@ -56,19 +57,23 @@ export default function Home() {
         </section>
 
         <div className="flex flex-col gap-4">
-          <Link
-            href="/teamProject"
-            transitionTypes={["nav-forward"]}
-            className="flex h-12 w-fit items-center justify-center gap-2 rounded-full bg-foreground px-6 text-background font-medium transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-          >
-            <ViewTransition
-              name="team-project-title"
-              share={{ "nav-forward": "morph", default: "none" }}
+          {/* 카테고리별 프로젝트 버튼 (team/personal/company) */}
+          {CATEGORY_ORDER.map((category) => (
+            <Link
+              key={category}
+              href={`/projects/${category}`}
+              transitionTypes={["nav-forward"]}
+              className="flex h-12 w-fit items-center justify-center gap-2 rounded-full bg-foreground px-6 text-background font-medium transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
             >
-              <span>팀 프로젝트</span>
-            </ViewTransition>
-            <span aria-hidden>→</span>
-          </Link>
+              <ViewTransition
+                name={`project-title-${category}`}
+                share={{ "nav-forward": "morph", default: "none" }}
+              >
+                <span>{CATEGORIES[category].label}</span>
+              </ViewTransition>
+              <span aria-hidden>→</span>
+            </Link>
+          ))}
 
           {/* 관리자 로그인 (메인 화면) */}
           <div>

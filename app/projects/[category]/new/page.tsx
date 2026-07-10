@@ -1,23 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
-import TiptapEditor from "../TiptapEditor";
-import { useAuth } from "../../AuthProvider";
+import TiptapEditor from "../../TiptapEditor";
+import { useAuth } from "../../../AuthProvider";
 import { API } from "@/app/apiBase";
+import { CATEGORIES, isCategory } from "../../projectConfig";
 
-export default function NewTeamProjectPage() {
+export default function NewProjectPage() {
   const router = useRouter();
+  const { category } = useParams<{ category: string }>();
   const { isLoggedIn, getToken } = useAuth();
 
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [published, setPublished] = useState(true); // true=공개, false=작성 중(비공개)
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const cfg = isCategory(category) ? CATEGORIES[category] : null;
+  const listHref = `/projects/${category}`;
 
   // 로그인 안 했으면 메인으로 돌려보냄 (글쓰기는 관리자만)
   useEffect(() => {
@@ -26,7 +32,7 @@ export default function NewTeamProjectPage() {
 
   async function handleCreate() {
     const token = getToken();
-    if (!token) return;
+    if (!cfg || !token) return;
     setBusy(true);
     setError(null);
     try {
@@ -42,12 +48,12 @@ export default function NewTeamProjectPage() {
       }
 
       await axios.post(
-        `${API}/api/team-projects`,
-        { title, summary, content, thumbnailUrl },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API}/api/${cfg.api}`,
+        { title, summary, content, thumbnailUrl, published },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      router.push("/teamProject"); // 저장 후 목록으로
+      router.replace(listHref); // 저장 후 목록으로 (히스토리에 글쓰기 안 남김)
     } catch {
       setError("저장 실패 (로그인 상태/입력값 확인)");
     } finally {
@@ -60,12 +66,16 @@ export default function NewTeamProjectPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <main className="mx-auto max-w-3xl px-6 py-12">
-        <Link href="/teamProject" className="text-sm text-zinc-500 hover:underline">
+        <Link
+          href={listHref}
+          replace
+          className="text-sm text-zinc-500 hover:underline"
+        >
           ← 목록으로
         </Link>
 
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          새 프로젝트 작성
+          새 프로젝트 작성 {cfg && `(${cfg.label})`}
         </h1>
 
         {error && <p className="mt-4 text-red-600">{error}</p>}
@@ -100,6 +110,15 @@ export default function NewTeamProjectPage() {
             <TiptapEditor token={getToken() ?? ""} onChange={setContent} />
           </div>
 
+          <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <input
+              type="checkbox"
+              checked={!published}
+              onChange={(e) => setPublished(!e.target.checked)}
+            />
+            🔒 비공개로 저장 (작성 중 — 나만 볼 수 있어요)
+          </label>
+
           <div className="flex gap-2">
             <button
               className="rounded bg-black px-5 py-2 text-white disabled:opacity-50 dark:bg-white dark:text-black"
@@ -109,7 +128,8 @@ export default function NewTeamProjectPage() {
               {busy ? "저장 중..." : "저장"}
             </button>
             <Link
-              href="/teamProject"
+              href={listHref}
+              replace
               className="rounded border border-zinc-300 px-5 py-2 dark:border-zinc-700"
             >
               취소

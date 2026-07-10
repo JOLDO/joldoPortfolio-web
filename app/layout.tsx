@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
+  //비동기로 해서 await로 cookies를 읽을때까지 RootLayout대기
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -29,7 +30,7 @@ export default async function RootLayout({
   // 혹시 모를 쿠키 읽기 실패에 대비해 기본값 false로 안전하게 처리
   let initialLoggedIn = false;
   try {
-    const cookieStore = await cookies();
+    const cookieStore = await cookies(); //await로 읽을때까지 RootLayout대기
     initialLoggedIn = cookieStore.get("loggedIn")?.value === "1";
   } catch {
     initialLoggedIn = false;
