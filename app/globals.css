@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+/* Tailwind v4의 dark: 는 기본이 OS 설정(prefers-color-scheme)이라
+   OS가 라이트면 흰 화면이 된다. .dark 클래스 기준으로 바꿔서
+   <html class="dark">만 붙으면 OS와 상관없이 항상 다크로 보이게 한다. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 항상 다크 값으로 고정 */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  /* 스크롤바, input/select 같은 브라우저 기본 UI도 다크로 그리게 */
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -10,13 +18,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
