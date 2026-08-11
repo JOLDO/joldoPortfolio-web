@@ -1,21 +1,28 @@
 @import "tailwindcss";
 
-/* Tailwind v4의 dark: 는 기본이 OS 설정(prefers-color-scheme)이라
-   OS가 라이트면 흰 화면이 된다. .dark 클래스 기준으로 바꿔서
-   <html class="dark">만 붙으면 OS와 상관없이 항상 다크로 보이게 한다. */
+/* Tailwind v4의 dark: 는 기본이 OS 설정(prefers-color-scheme)이라 OS 설정에 따라
+   화면이 바뀌어 버린다. .dark 클래스 기준으로 바꿔서 <html>에 dark를 붙일 때만
+   어두워지게 한다. 지금은 안 붙였으므로 OS와 상관없이 항상 밝은 화면. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* 항상 다크 값으로 고정 */
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  /* 스크롤바, input/select 같은 브라우저 기본 UI도 다크로 그리게 */
-  color-scheme: dark;
+  /* 밝은 무채색 배경 (청록기가 아주 살짝) */
+  --background: #f7faf9;
+  --foreground: #14191b;
+  /* 포인트 컬러 — 딥 티일. 버튼, 링크, 섹션 번호에 쓴다 */
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-soft: #dff0ec;
+  /* 스크롤바, input/select 같은 브라우저 기본 UI도 밝게 그리게 */
+  color-scheme: light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -24,6 +31,24 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 섹션 번호(01, 02...)는 CSS 카운터로 매긴다.
+   자격증 섹션처럼 상황에 따라 사라지는 섹션이 있어도 뒤 번호가 알아서 당겨진다. */
+main {
+  counter-reset: section;
+}
+.section-no::before {
+  counter-increment: section;
+  content: counter(section, decimal-leading-zero);
+}
+
+/* 캐러셀용: 가로 스크롤은 되지만 스크롤바는 안 보이게 (화살표·점으로 넘기니까) */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 
 /* 화면 전환 페이드 + 슬라이드 애니메이션 */

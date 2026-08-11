@@ -7,10 +7,14 @@ import ContentViewer from "../../ContentViewer";
 import TiptapEditor from "../../TiptapEditor";
 import { useAuth } from "../../../AuthProvider";
 import { API } from "@/app/apiBase";
-import { CATEGORIES, isCategory } from "../../projectConfig";
+import { CATEGORIES, isCategory, PART_SUGGESTIONS } from "../../projectConfig";
+
+type GroupOption = { id: number; name: string };
 
 type ProjectDetail = {
   id: number;
+  groupId: number | null;
+  part: string | null;
   title: string;
   summary: string | null;
   content: string | null;
@@ -32,11 +36,12 @@ export default function ProjectDetailPage() {
 
   // ── 수정 모드 상태 ────────────────────────────────
   const [editing, setEditing] = useState(false);
+  const [groups, setGroups] = useState<GroupOption[]>([]); // 소속 프로젝트 후보
+  const [groupId, setGroupId] = useState(""); // "" = 소속 없음
+  const [part, setPart] = useState("");
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [published, setPublished] = useState(true); // 수정폼용: true=공개, false=비공개
   const [busy, setBusy] = useState(false);
 
@@ -61,32 +66,28 @@ export default function ProjectDetailPage() {
   // 뒤로가기로 나가야 상세 기록이 히스토리에서 빠진다 (replace는 목록 기록을 지워서 홈으로 튐)
   const goToList = () => router.back();
 
+  // 수정할 때 고를 소속 프로젝트 목록 (관리자만 필요)
+  useEffect(() => {
+    if (!cfg || !isLoggedIn) return;
+    const token = getToken();
+    axios
+      .get<GroupOption[]>(`${API}/api/${cfg.groupApi}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setGroups(res.data))
+      .catch(console.error);
+  }, [cfg, isLoggedIn, getToken]);
+
   // "수정" 클릭 → 기존 값 세팅 후 편집 모드 진입
   function startEdit() {
     if (!project) return;
+    setGroupId(project.groupId === null ? "" : String(project.groupId));
+    setPart(project.part ?? "");
     setTitle(project.title);
     setSummary(project.summary ?? "");
     setContent(project.content ?? "");
-    setThumbnailFile(null);
-    setThumbnailPreview(project.thumbnailUrl);
     setPublished(project.published);
     setEditing(true);
-  }
-
-  // 썸네일 파일 선택 → 미리보기 갱신 + 이전 blob 메모리 해제
-  function handleThumbnailChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; //파일이 변경되었을때 변경한 파일을 변수에 담는다.
-    if (!file) return; // 취소 눌렀을 때 방어(취소해도 원래 갖고 있던 걸 없애버리는 것 방지)
-
-    // 기존에 생성된 blob URL이 있다면 메모리 해제 (메모리 누수 방지)
-    // 썸네일 프리뷰는 처음엔 서버 url로 그리지만, 파일 선택은 내 컴퓨터 파일이라 외부에서 안 받는 blob:이 붙음
-    // 보통 컴퓨터 파일은 file://인데 웹페이지는 보안상 실제 경로를 알 수 없어서 blob:이 사용됨
-    if (thumbnailPreview && thumbnailPreview.startsWith("blob:")) {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
-
-    setThumbnailFile(file);
-    setThumbnailPreview(URL.createObjectURL(file)); //새로 만듦
   }
 
   // 저장 → PUT /api/{cfg.api}/{id}
@@ -96,18 +97,17 @@ export default function ProjectDetailPage() {
     setBusy(true);
     setError(null);
     try {
-      let thumbnailUrl = project.thumbnailUrl;
-      if (thumbnailFile) {
-        const formData = new FormData(); //file 다룰 때 formdata로 감싸서 사용
-        formData.append("file", thumbnailFile);
-        const up = await axios.post(`${API}/api/images`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        thumbnailUrl = up.data.url; //파일 넣고 나서 썸네일url을 읽어오고
-      }
+      // 썸네일은 프로젝트(그룹)에만 있다 — 글에는 안 보낸다
       await axios.put(
         `${API}/api/${cfg.api}/${id}`,
-        { title, summary, content, thumbnailUrl, published }, //썸네일과 데이터를 넣어줌
+        {
+          groupId: groupId === "" ? null : Number(groupId), // "" = 소속 없는 낱개 글
+          part: part || null,
+          title,
+          summary,
+          content,
+          published,
+        },
         { headers: { Authorization: `Bearer ${token}` } },
       );
       // 새 데이터를 먼저 받아 project를 갱신한 뒤 보기모드로 전환한다.
@@ -123,50 +123,67 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+    <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-3xl px-6 py-12">
         <button
           onClick={goToList}
-          className="text-sm text-zinc-500 hover:underline"
+          className="text-sm text-slate-500 hover:underline"
         >
           ← 목록으로
         </button>
 
         {error && <p className="mt-6 text-red-600">{error}</p>}
-        {!error && !project && <p className="mt-6 text-zinc-500">로딩중...</p>}
+        {!error && !project && <p className="mt-6 text-slate-500">로딩중...</p>}
 
         {/* ── 수정 모드 ──────────────────────────────── */}
         {project && editing && (
           <section className="mt-6 flex flex-col gap-3">
+            {/* 어느 프로젝트의 어느 파트인지 (둘 다 비우면 낱개 글) */}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <label className="flex flex-1 flex-col gap-1 text-sm text-slate-600">
+                소속 프로젝트
+                <select
+                  className="text-foreground rounded border border-slate-300 bg-white px-3 py-2 text-base"
+                  value={groupId}
+                  onChange={(e) => setGroupId(e.target.value)}
+                >
+                  <option value="">소속 없음 (낱개 글)</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-1 flex-col gap-1 text-sm text-slate-600">
+                파트
+                <input
+                  className="text-foreground rounded border border-slate-300 bg-white px-3 py-2 text-base"
+                  value={part}
+                  onChange={(e) => setPart(e.target.value)}
+                  placeholder="웹 / 앱 / 서버"
+                  list="part-suggestions"
+                />
+                <datalist id="part-suggestions">
+                  {PART_SUGGESTIONS.map((suggestion) => (
+                    <option key={suggestion} value={suggestion} />
+                  ))}
+                </datalist>
+              </label>
+            </div>
+
             <input
-              className="rounded border border-zinc-300 px-3 py-2 text-2xl font-semibold dark:border-zinc-700 dark:bg-zinc-800"
+              className="rounded border border-slate-300 px-3 py-2 text-2xl font-semibold"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="제목"
             />
             <input
-              className="rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800"
+              className="rounded border border-slate-300 px-3 py-2"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               placeholder="요약"
             />
-
-            <div className="flex flex-col gap-1 text-sm text-zinc-600 dark:text-zinc-400">
-              <span>썸네일 교체 (선택)</span>
-              {thumbnailPreview && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={thumbnailPreview}
-                  alt="썸네일 미리보기"
-                  className="mt-1 mb-2 h-32 w-full max-w-xs rounded object-cover border border-zinc-200 dark:border-zinc-800"
-                />
-              )}
-              <input
-                type="file"
-                accept="image/*" //image/jpg 등 이미지면 다 들어올 수 있게
-                onChange={handleThumbnailChange}
-              />
-            </div>
 
             <TiptapEditor
               token={getToken() ?? ""}
@@ -174,7 +191,7 @@ export default function ProjectDetailPage() {
               onChange={setContent}
             />
 
-            <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <label className="flex items-center gap-2 text-sm text-slate-700">
               <input
                 type="checkbox"
                 checked={!published}
@@ -185,14 +202,14 @@ export default function ProjectDetailPage() {
 
             <div className="flex gap-2 mt-2">
               <button
-                className="rounded bg-black px-4 py-2 text-white disabled:opacity-50 dark:bg-white dark:text-black"
+                className="rounded bg-accent px-4 py-2 text-white disabled:opacity-50"
                 onClick={handleUpdate}
                 disabled={busy || !title}
               >
                 {busy ? "저장 중..." : "저장"}
               </button>
               <button
-                className="rounded border border-zinc-300 px-4 py-2 dark:border-zinc-700"
+                className="rounded border border-slate-300 px-4 py-2"
                 onClick={() => setEditing(false)}
               >
                 취소
@@ -207,17 +224,23 @@ export default function ProjectDetailPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 {project.published === false && (
-                  <span className="mb-2 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                  <span className="mb-2 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                     🔒 비공개 (나만 보임)
                   </span>
                 )}
-                <h1 className="text-4xl font-semibold tracking-tight text-black dark:text-zinc-50">
+                {/* 어느 프로젝트의 어느 파트였는지 */}
+                {project.part && (
+                  <span className="mb-2 mr-2 inline-block rounded bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-hover">
+                    {project.part}
+                  </span>
+                )}
+                <h1 className="text-4xl font-semibold tracking-tight text-black">
                   {project.title}
                 </h1>
               </div>
               {isLoggedIn && (
                 <button
-                  className="shrink-0 rounded border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                  className="shrink-0 rounded border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100"
                   onClick={startEdit}
                 >
                   수정
@@ -226,21 +249,19 @@ export default function ProjectDetailPage() {
             </div>
 
             {project.summary && (
-              <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
-                {project.summary}
-              </p>
+              <p className="mt-2 text-lg text-slate-600">{project.summary}</p>
             )}
 
-            <p className="mt-1 text-xs text-zinc-400">
+            <p className="mt-1 text-xs text-slate-400">
               작성: {new Date(project.createdAt).toLocaleString()}
             </p>
 
-            <hr className="my-6 border-zinc-200 dark:border-zinc-800" />
+            <hr className="my-6 border-slate-200" />
 
             {project.content ? (
               <ContentViewer content={project.content} />
             ) : (
-              <p className="text-zinc-500">본문이 없습니다.</p>
+              <p className="text-slate-500">본문이 없습니다.</p>
             )}
           </article>
         )}

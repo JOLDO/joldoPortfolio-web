@@ -37,12 +37,12 @@ export default async function RootLayout({
   }
 
   return (
-    // dark 클래스를 항상 붙여서 OS 테마와 무관하게 다크 화면으로 고정
+    // dark 클래스를 안 붙였으므로 OS 테마와 무관하게 항상 밝은 화면으로 고정
     <html
       lang="ko"
-      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-black dark:bg-black dark:text-zinc-50">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <AuthProvider initialLoggedIn={initialLoggedIn}>
           <ViewTransition default="page-fade-slide">{children}</ViewTransition>
         </AuthProvider>
