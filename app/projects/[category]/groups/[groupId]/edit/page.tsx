@@ -160,23 +160,51 @@ export default function EditGroupPage() {
             />
           </label>
 
-          <label className="text-sm text-slate-600">
-            대표 이미지 교체 (선택)
+          <div className="flex flex-col gap-1 text-sm text-slate-600">
+            <span>대표 이미지 (선택)</span>
+
             {thumbnailUrl && !thumbnailFile && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={thumbnailUrl}
-                alt="현재 대표 이미지"
-                className="mt-1 mb-2 h-32 w-full max-w-xs rounded border border-slate-200 object-cover"
-              />
+              <div className="mt-1 mb-2 w-full max-w-xs">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumbnailUrl}
+                  alt="현재 대표 이미지"
+                  className="h-32 w-full rounded border border-slate-200 object-cover"
+                />
+                {/* 지우면 저장할 때 thumbnailUrl로 null이 가서 이미지가 없어진다 */}
+                <button
+                  type="button"
+                  onClick={() => setThumbnailUrl(null)}
+                  className="mt-1 text-sm text-red-600 hover:underline"
+                >
+                  이미지 삭제
+                </button>
+              </div>
             )}
+
+            {thumbnailFile && (
+              <p className="mb-1 text-slate-500">
+                새 이미지 선택됨: {thumbnailFile.name}{" "}
+                <button
+                  type="button"
+                  onClick={() => setThumbnailFile(null)}
+                  className="ml-1 text-red-600 hover:underline"
+                >
+                  취소
+                </button>
+              </p>
+            )}
+
             <input
+              // 선택을 취소하면 input을 새로 그려서 값까지 비운다
+              // (안 그러면 같은 파일을 다시 골랐을 때 onChange가 안 뜬다)
+              key={thumbnailFile ? "picked" : "empty"}
               className="mt-1 block"
               type="file"
               accept="image/*"
               onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)}
             />
-          </label>
+          </div>
 
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
