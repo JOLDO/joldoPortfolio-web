@@ -26,7 +26,6 @@ export default function ProjectDetailPage() {
   const { isLoggedIn, getToken } = useAuth();
 
   const cfg = isCategory(category) ? CATEGORIES[category] : null;
-  const listHref = `/projects/${category}`;
 
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +58,8 @@ export default function ProjectDetailPage() {
       .catch(() => setError("불러오기 실패 (없는 프로젝트일 수 있어요)"));
   }, [cfg, fetchProject]);
 
-  const goToList = () => router.replace(listHref);
+  // 뒤로가기로 나가야 상세 기록이 히스토리에서 빠진다 (replace는 목록 기록을 지워서 홈으로 튐)
+  const goToList = () => router.back();
 
   // "수정" 클릭 → 기존 값 세팅 후 편집 모드 진입
   function startEdit() {

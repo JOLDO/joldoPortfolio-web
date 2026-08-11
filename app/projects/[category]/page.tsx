@@ -100,7 +100,6 @@ export default function ProjectListPage() {
           {isLoggedIn && (
             <Link
               href={`/projects/${category}/new`}
-              replace
               className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white dark:bg-white dark:text-black"
             >
               ✏️ 글쓰기
@@ -121,7 +120,6 @@ export default function ProjectListPage() {
                 >
                   <Link
                     href={`/projects/${category}/${project.id}`}
-                    replace
                     className="flex-1"
                   >
                     {project.thumbnailUrl && (

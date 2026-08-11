@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
 import axios from "axios";
 import TiptapEditor from "../../TiptapEditor";
 import { useAuth } from "../../../AuthProvider";
@@ -23,7 +22,6 @@ export default function NewProjectPage() {
   const [error, setError] = useState<string | null>(null);
 
   const cfg = isCategory(category) ? CATEGORIES[category] : null;
-  const listHref = `/projects/${category}`;
 
   // 로그인 안 했으면 메인으로 돌려보냄 (글쓰기는 관리자만)
   useEffect(() => {
@@ -53,7 +51,7 @@ export default function NewProjectPage() {
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      router.replace(listHref); // 저장 후 목록으로 (히스토리에 글쓰기 안 남김)
+      router.back(); // 저장 후 목록으로 (뒤로가기로 나가야 히스토리에 글쓰기가 안 남음)
     } catch {
       setError("저장 실패 (로그인 상태/입력값 확인)");
     } finally {
@@ -66,13 +64,12 @@ export default function NewProjectPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <main className="mx-auto max-w-3xl px-6 py-12">
-        <Link
-          href={listHref}
-          replace
+        <button
+          onClick={() => router.back()}
           className="text-sm text-zinc-500 hover:underline"
         >
           ← 목록으로
-        </Link>
+        </button>
 
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
           새 프로젝트 작성 {cfg && `(${cfg.label})`}
@@ -127,13 +124,12 @@ export default function NewProjectPage() {
             >
               {busy ? "저장 중..." : "저장"}
             </button>
-            <Link
-              href={listHref}
-              replace
+            <button
+              onClick={() => router.back()}
               className="rounded border border-zinc-300 px-5 py-2 dark:border-zinc-700"
             >
               취소
-            </Link>
+            </button>
           </div>
         </div>
       </main>
