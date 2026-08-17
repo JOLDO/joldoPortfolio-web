@@ -84,9 +84,6 @@ export default function NewGroupPage() {
         <h1 className="mt-4 text-3xl font-semibold tracking-tight">
           새 프로젝트 등록 {cfg && `(${cfg.label})`}
         </h1>
-        <p className="mt-2 text-slate-600">
-          글을 묶는 단위예요. 예) 1차 프로젝트, 미플
-        </p>
 
         {error && <p className="mt-4 text-red-600">{error}</p>}
 
@@ -95,25 +92,25 @@ export default function NewGroupPage() {
             className="rounded border border-slate-300 bg-white px-3 py-2 text-2xl font-semibold"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="이름 (예: 1차 프로젝트)"
+            placeholder="프로젝트 제목"
           />
           <input
             className="rounded border border-slate-300 bg-white px-3 py-2"
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            placeholder="한 줄 설명 (카드에 보임)"
+            placeholder="한 줄 설명 (카드에서 보입니다)"
           />
           <input
             className="rounded border border-slate-300 bg-white px-3 py-2"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            placeholder="기간 (예: 2024.03 ~ 2024.06)"
+            placeholder="기간 (예: 2026.07 ~ 2026.08)"
           />
           <textarea
             className="min-h-40 rounded border border-slate-300 bg-white px-3 py-2 leading-7"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="전체 설명 (모달에 보임 — 어떤 프로젝트였고, 무엇을 만들었는지)"
+            placeholder="전체 설명 (모달 창에서 보입니다)"
           />
 
           <label className="flex flex-col gap-1 text-sm text-slate-600">
@@ -123,7 +120,7 @@ export default function NewGroupPage() {
               value={contribution}
               onChange={(e) => setContribution(e.target.value)}
               placeholder={
-                "이 프로젝트에서 내가 맡아 한 일을 적어주세요.\n줄바꿈은 그대로 보입니다.\n- 로그인/회원가입 화면 구현\n- 결제 API 연동"
+                "이 프로젝트에서 내가 맡아 한 일을 적어주세요.\n줄바꿈은 그대로 보입니다."
               }
             />
           </label>
@@ -144,7 +141,7 @@ export default function NewGroupPage() {
               checked={!published}
               onChange={(e) => setPublished(!e.target.checked)}
             />
-            🔒 비공개로 저장 (작성 중 — 나만 볼 수 있어요)
+            🔒 비공개로 저장 (작성 중 — 관리자만 볼 수 있습니다)
           </label>
 
           <div className="flex gap-2">

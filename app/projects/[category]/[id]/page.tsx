@@ -161,7 +161,7 @@ export default function ProjectDetailPage() {
                   className="text-foreground rounded border border-slate-300 bg-white px-3 py-2 text-base"
                   value={part}
                   onChange={(e) => setPart(e.target.value)}
-                  placeholder="웹 / 앱 / 서버"
+                  placeholder="웹 / 앱 / 서버 / 기획 / 디자인"
                   list="part-suggestions"
                 />
                 <datalist id="part-suggestions">
@@ -176,7 +176,7 @@ export default function ProjectDetailPage() {
               className="rounded border border-slate-300 px-3 py-2 text-2xl font-semibold"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="제목"
+              placeholder="제목 (모달 창에서 보입니다)"
             />
             <input
               className="rounded border border-slate-300 px-3 py-2"
@@ -184,20 +184,23 @@ export default function ProjectDetailPage() {
               onChange={(e) => setSummary(e.target.value)}
               placeholder="요약"
             />
-
-            <TiptapEditor
-              token={getToken() ?? ""}
-              initialContent={project.content ?? ""}
-              onChange={setContent}
-            />
-
+            <div>
+              <p className="mb-1 text-sm text-slate-600">
+                본문 (이미지를 편집영역으로 드래그하거나 🖼 버튼으로 추가)
+              </p>
+              <TiptapEditor
+                token={getToken() ?? ""}
+                initialContent={project.content ?? ""}
+                onChange={setContent}
+              />
+            </div>
             <label className="flex items-center gap-2 text-sm text-slate-700">
               <input
                 type="checkbox"
                 checked={!published}
                 onChange={(e) => setPublished(!e.target.checked)}
               />
-              🔒 비공개 (작성 중 — 나만 볼 수 있어요)
+              🔒 비공개 (작성 중 — 관리자만 볼 수 있습니다)
             </label>
 
             <div className="flex gap-2 mt-2">
@@ -255,6 +258,12 @@ export default function ProjectDetailPage() {
             <p className="mt-1 text-xs text-slate-400">
               작성: {new Date(project.createdAt).toLocaleString()}
             </p>
+            {/* 수정한 적 없으면 updatedAt이 createdAt과 같아서 굳이 안 보여준다 */}
+            {project.updatedAt !== project.createdAt && (
+              <p className="text-xs text-slate-400">
+                수정: {new Date(project.updatedAt).toLocaleString()}
+              </p>
+            )}
 
             <hr className="my-6 border-slate-200" />
 

@@ -129,7 +129,7 @@ function NewProjectForm() {
                 className="rounded border border-slate-300 bg-white px-3 py-2 text-base text-foreground"
                 value={part}
                 onChange={(e) => setPart(e.target.value)}
-                placeholder="웹 / 앱 / 서버"
+                placeholder="웹 / 앱 / 서버 / 기획 / 디자인"
                 list="part-suggestions"
               />
               <datalist id="part-suggestions">
@@ -144,13 +144,13 @@ function NewProjectForm() {
             className="rounded border border-slate-300 px-3 py-2 text-2xl font-semibold"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="제목"
+            placeholder="제목 (모달 창에서 보입니다)"
           />
           <input
             className="rounded border border-slate-300 px-3 py-2"
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            placeholder="요약 (목록 카드에 보임)"
+            placeholder="요약"
           />
           <div>
             <p className="mb-1 text-sm text-slate-600">
@@ -165,7 +165,7 @@ function NewProjectForm() {
               checked={!published}
               onChange={(e) => setPublished(!e.target.checked)}
             />
-            🔒 비공개로 저장 (작성 중 — 나만 볼 수 있어요)
+            🔒 비공개로 저장 (작성 중 — 관리자만 볼 수 있습니다)
           </label>
 
           <div className="flex gap-2">

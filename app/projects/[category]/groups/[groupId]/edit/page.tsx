@@ -127,25 +127,25 @@ export default function EditGroupPage() {
             className="rounded border border-slate-300 bg-white px-3 py-2 text-2xl font-semibold"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="이름 (예: 1차 프로젝트)"
+            placeholder="프로젝트 제목"
           />
           <input
             className="rounded border border-slate-300 bg-white px-3 py-2"
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            placeholder="한 줄 설명 (카드에 보임)"
+            placeholder="한 줄 설명 (카드에서 보입니다)"
           />
           <input
             className="rounded border border-slate-300 bg-white px-3 py-2"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            placeholder="기간 (예: 2024.03 ~ 2024.06)"
+            placeholder="기간 (예: 2026.07 ~ 2026.08)"
           />
           <textarea
             className="min-h-40 rounded border border-slate-300 bg-white px-3 py-2 leading-7"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="전체 설명 (모달에 보임)"
+            placeholder="전체 설명 (모달 창에서 보입니다)"
           />
 
           <label className="flex flex-col gap-1 text-sm text-slate-600">
@@ -212,7 +212,7 @@ export default function EditGroupPage() {
               checked={!published}
               onChange={(e) => setPublished(!e.target.checked)}
             />
-            🔒 비공개 (작성 중 — 나만 볼 수 있어요)
+            🔒 비공개로 저장 (작성 중 — 관리자만 볼 수 있습니다)
           </label>
 
           <div className="flex gap-2">
