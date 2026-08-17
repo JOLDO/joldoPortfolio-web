@@ -95,6 +95,9 @@ export default function GroupCards({
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 92vw, 37vw"
+                    // 첫 장은 목록 페이지에서 화면 위쪽에 오므로 먼저 불러온다.
+                    // 나머지는 넘겨야 보이니 기본(지연 로딩)으로 둔다.
+                    priority={index === 0}
                   />
                 </div>
               ) : (

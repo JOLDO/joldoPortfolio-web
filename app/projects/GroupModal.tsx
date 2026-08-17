@@ -51,7 +51,12 @@ export default function GroupModal({
     null,
   );
 
+  // 세로로 긴 사진인지 기억해 둔다. 주소까지 같이 들고 있어서 다른 프로젝트를 열면 자동으로 초기화된다.
+  const [portraitUrl, setPortraitUrl] = useState<string | null>(null);
+
   const group = loaded && loaded.id === groupId ? loaded : null;
+  const isPortrait =
+    !!group?.thumbnailUrl && portraitUrl === group.thumbnailUrl;
   const error = failed && failed.id === groupId ? failed.message : null;
   const loading = groupId !== null && !group && !error;
 
@@ -130,18 +135,6 @@ export default function GroupModal({
 
         {group && (
           <>
-            {group.thumbnailUrl && (
-              <div className="relative mb-5 h-48 w-full overflow-hidden rounded-xl">
-                <Image
-                  src={group.thumbnailUrl}
-                  alt={group.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 672px"
-                />
-              </div>
-            )}
-
             <div className="flex items-start justify-between gap-4">
               <div>
                 {group.published === false && (
@@ -164,33 +157,71 @@ export default function GroupModal({
               </button>
             </div>
 
+            {/* 한 줄 설명은 제목에 딸린 문구라 구분선 없이 바로 아래 */}
             {group.summary && (
               <p className="mt-3 text-slate-600">{group.summary}</p>
             )}
 
+            {group.thumbnailUrl && (
+              // 카드와 같이 칸을 꽉 채워 보여준다(object-cover, 넘치는 부분은 잘림).
+              // 다만 세로로 긴 사진은 칸 자체를 좁고 길게 바꿔서 덜 잘리게 한다.
+              <div
+                className={`relative mt-5 overflow-hidden rounded-xl bg-slate-100 ${
+                  isPortrait ? "mx-auto h-96 w-72" : "h-72 w-full"
+                }`}
+              >
+                <Image
+                  src={group.thumbnailUrl}
+                  alt={group.name}
+                  fill
+                  className="object-cover"
+                  sizes={
+                    isPortrait ? "288px" : "(max-width: 768px) 100vw, 672px"
+                  }
+                  // 실제 크기를 보고 세로 사진인지 판단한다 (미리 알 수 없으니 불러온 뒤에)
+                  onLoad={(e) => {
+                    const img = e.currentTarget;
+                    // img.src는 최적화된 /_next/image 주소라, 비교는 원본 주소로 해야 한다
+                    setPortraitUrl(
+                      img.naturalHeight > img.naturalWidth
+                        ? group.thumbnailUrl
+                        : null,
+                    );
+                  }}
+                />
+              </div>
+            )}
+
+            {/* 아래 덩어리들은 border-t로 구분선을 그어 내용이 섞여 보이지 않게 한다 */}
+
             {group.description && (
-              // 줄바꿈을 그대로 보여준다 (에디터가 아니라 그냥 긴 텍스트라서)
-              <p className="mt-4 leading-8 whitespace-pre-line text-slate-600">
-                {group.description}
-              </p>
+              <div className="mt-5 border-t border-accent/25 pt-5">
+                <h3 className="text-sm font-semibold tracking-widest text-accent uppercase">
+                  프로젝트 소개
+                </h3>
+                {/* 줄바꿈을 그대로 보여준다 (에디터가 아니라 그냥 긴 텍스트라서) */}
+                <p className="mt-3 leading-8 whitespace-pre-line text-slate-600">
+                  {group.description}
+                </p>
+              </div>
             )}
 
             {/* 프로젝트 등록/수정 때 적어둔 "내가 한 일" 글 */}
             {group.contribution && (
-              <>
-                <h3 className="mt-8 text-sm font-semibold tracking-widest text-slate-500 uppercase">
+              <div className="mt-5 border-t border-accent/25 pt-5">
+                <h3 className="text-sm font-semibold tracking-widest text-accent uppercase">
                   내가 한 일
                 </h3>
                 <p className="mt-3 leading-8 whitespace-pre-line text-slate-600">
                   {group.contribution}
                 </p>
-              </>
+              </div>
             )}
 
             {/* 파트별 상세 글 — 눌러서 자세한 기록으로 들어간다 */}
             {group.posts.length > 0 && (
-              <>
-                <h3 className="mt-8 text-sm font-semibold tracking-widest text-slate-500 uppercase">
+              <div className="mt-5 border-t border-accent/25 pt-5">
+                <h3 className="text-sm font-semibold tracking-widest text-accent uppercase">
                   상세 기록
                 </h3>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -210,12 +241,12 @@ export default function GroupModal({
                     </Link>
                   ))}
                 </div>
-              </>
+              </div>
             )}
 
             {/* 관리자 전용 */}
             {isLoggedIn && (
-              <div className="mt-8 flex flex-wrap gap-2 border-t border-slate-200 pt-4">
+              <div className="mt-8 flex flex-wrap gap-2 border-t border-accent/25 pt-4">
                 {/* ?groupId=를 달아 보내면 글쓰기 폼에서 소속이 미리 골라진다 */}
                 <Link
                   href={`/projects/${category}/new?groupId=${group.id}`}
