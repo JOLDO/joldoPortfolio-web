@@ -131,7 +131,7 @@ export default function NewGroupPage() {
           <label className="text-sm text-slate-600">
             대표 이미지
             <input
-              className="mt-1 block"
+              className="mt-2 block w-full text-sm text-slate-500 file:mr-3 file:cursor-pointer file:rounded-full file:border file:border-slate-300 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:border-accent hover:file:text-accent"
               type="file"
               accept="image/*"
               onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)}

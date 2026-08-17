@@ -21,9 +21,17 @@ export default function LoginBox() {
 
     if (open) {
       if (!dialog.open) dialog.showModal();
+      // 모달이 떠 있는 동안 뒤 페이지는 스크롤되지 않게 잠근다
+      document.body.style.overflow = "hidden";
     } else {
       if (dialog.open) dialog.close();
+      document.body.style.overflow = "";
     }
+
+    // 열린 채로 화면을 벗어나도 잠금이 남지 않도록 정리
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]); //open의 상태가 달라질때마다 useEffect를 실행
 
   // 모달이 실제로 닫힐 때 실행될 핸들러 (ESC, close() 등 모든 닫기 상황 대응)
@@ -63,7 +71,7 @@ export default function LoginBox() {
 
       <dialog
         ref={dialogRef} //ref로 등록하면서 dialogRef는 다이얼로그 객체가 됨
-        className="fixed inset-0 m-auto h-fit w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-0 shadow-xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
+        className="fixed inset-0 m-auto h-fit max-h-[85vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl border border-zinc-200 bg-white p-0 shadow-xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
         onClose={handleClose} // 브라우저에 의해 dialog가 닫히면 여기서 안전하게 상태 초기화!
         onClick={(e) => {
           if (e.target === dialogRef.current) dialogRef.current.close(); //다이얼로그는 카드내용이고, 어두운 배경은 backdrop인데 이거는 타겟이 될수없어서 dialog가 타겟이 됨. 카드 내용은 div로 감쌌기 때문에 div로 나와서 이렇게함

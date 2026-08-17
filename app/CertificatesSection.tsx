@@ -57,9 +57,17 @@ export default function CertificatesSection() {
 
     if (formOpen) {
       if (!dialog.open) dialog.showModal();
+      // 모달이 떠 있는 동안 뒤 페이지는 스크롤되지 않게 잠근다
+      document.body.style.overflow = "hidden";
     } else {
       if (dialog.open) dialog.close();
+      document.body.style.overflow = "";
     }
+
+    // 열린 채로 화면을 벗어나도 잠금이 남지 않도록 정리
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [formOpen]);
 
   function openForm(certificate: Certificate | null) {
@@ -176,7 +184,7 @@ export default function CertificatesSection() {
       {/* 등록·수정 폼 (관리자 전용) */}
       <dialog
         ref={dialogRef}
-        className="fixed inset-0 m-auto h-fit w-full max-w-sm rounded-xl border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-black/40"
+        className="fixed inset-0 m-auto h-fit max-h-[85vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-black/40"
         onClose={() => setFormOpen(false)}
         onClick={(e) => {
           if (e.target === dialogRef.current) dialogRef.current.close();

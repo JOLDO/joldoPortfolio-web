@@ -69,9 +69,18 @@ export default function GroupModal({
 
     if (groupId !== null) {
       if (!dialog.open) dialog.showModal();
+      // 모달이 떠 있는 동안 뒤 페이지는 스크롤되지 않게 잠근다.
+      // (모달 내용이 짧아 스크롤바가 없을 때 휠을 굴리면 뒤 화면이 움직이던 문제)
+      document.body.style.overflow = "hidden";
     } else {
       if (dialog.open) dialog.close();
+      document.body.style.overflow = "";
     }
+
+    // 모달이 열린 채로 이 컴포넌트가 사라져도 잠금이 남지 않도록 정리
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [groupId]);
 
   // 열릴 때마다 그 그룹 내용을 받아온다
@@ -122,7 +131,8 @@ export default function GroupModal({
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 m-auto max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-black/40"
+      // overscroll-contain: 모달 안에서 끝까지 스크롤해도 그 힘이 뒤 페이지로 넘어가지 않는다
+      className="fixed inset-0 m-auto max-h-[85vh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-black/40"
       onClose={onClose} // ESC로 닫아도 부모 상태가 같이 정리되도록
       onClick={(e) => {
         // 배경(dialog 자체)을 클릭했을 때만 닫는다. 내용은 div로 감싸져 있어 여기 안 걸린다.

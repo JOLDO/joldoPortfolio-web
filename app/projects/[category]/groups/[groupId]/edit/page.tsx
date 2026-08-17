@@ -199,7 +199,7 @@ export default function EditGroupPage() {
               // 선택을 취소하면 input을 새로 그려서 값까지 비운다
               // (안 그러면 같은 파일을 다시 골랐을 때 onChange가 안 뜬다)
               key={thumbnailFile ? "picked" : "empty"}
-              className="mt-1 block"
+              className="mt-2 block w-full text-sm text-slate-500 file:mr-3 file:cursor-pointer file:rounded-full file:border file:border-slate-300 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:border-accent hover:file:text-accent"
               type="file"
               accept="image/*"
               onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)}
