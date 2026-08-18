@@ -123,6 +123,54 @@ main {
   }
 }
 
+/* 모달 등장 애니메이션 — 뒤 배경이 먼저 어두워지고, 이어서 상자가 아래에서 올라온다.
+   닫을 때는 애니메이션 없이 즉시 사라진다.
+
+   <dialog>는 닫혀 있을 때 display:none이라 원래대로면 transition이 안 걸린다.
+   그래서 여는 쪽에만 두 가지를 쓴다.
+   - @starting-style: "열리기 직전에는 어떤 모습이었나"를 알려준다. 시작점이 없으면 그냥 툭 나타난다.
+   - transition을 [open]에만 적어둔다: 전환 규칙은 "바뀐 뒤의 상태"에 적힌 걸 쓴다.
+     닫을 때는 규칙이 없는 아래 기본 상태로 돌아가므로 전환이 안 일어나고 즉시 사라진다. */
+.modal-pop {
+  opacity: 0;
+  translate: 0 16px; /* 16px 아래에서 시작 → 위로 올라옴 */
+}
+.modal-pop[open] {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 220ms ease-out 60ms,
+    translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1) 60ms;
+}
+@starting-style {
+  .modal-pop[open] {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
+/* 뒤 배경(dim). 지연 없이 먼저 어두워져서 상자보다 한 박자 앞선다. */
+.modal-pop::backdrop {
+  background-color: rgb(0 0 0 / 0);
+}
+.modal-pop[open]::backdrop {
+  background-color: rgb(0 0 0 / 0.4);
+  transition: background-color 180ms ease-out;
+}
+@starting-style {
+  .modal-pop[open]::backdrop {
+    background-color: rgb(0 0 0 / 0);
+  }
+}
+
+/* 모션 최소화 설정을 켠 사용자에게는 즉시 표시 */
+@media (prefers-reduced-motion: reduce) {
+  .modal-pop[open],
+  .modal-pop[open]::backdrop {
+    transition-duration: 0s;
+  }
+}
+
 /* TipTap 본문 공통 스타일 (에디터/뷰어가 만든 요소는 className을 못 붙여서 선택자로 잡음) */
 .tiptap-content .ProseMirror {
   outline: none;

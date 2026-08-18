@@ -110,6 +110,13 @@ export default function GroupModal({
     };
   }, [groupId, groupApi, isLoggedIn, getToken]);
 
+  // 모달을 연 채로 페이지를 이동하면 잔상이 남는다.
+  // showModal()로 연 <dialog>는 브라우저의 top layer(맨 위 특수 계층)에 올라가는데,
+  // 화면 전환 스냅샷에는 이 계층이 안 담긴다. 그래서 페이지가 미끄러지는 400ms 동안
+  // 모달만 살아서 위에 떠 있다가 툭 사라진다. 이동 직전에 먼저 닫아준다.
+  // onNavigate는 실제 페이지 이동일 때만 불린다 (Cmd+클릭으로 새 탭을 열 때는 안 불림).
+  const closeBeforeLeaving = () => dialogRef.current?.close();
+
   async function handleDelete() {
     const token = getToken();
     if (!group || !token || !confirm("이 프로젝트를 삭제할까? (글은 남습니다)"))
@@ -132,7 +139,9 @@ export default function GroupModal({
     <dialog
       ref={dialogRef}
       // overscroll-contain: 모달 안에서 끝까지 스크롤해도 그 힘이 뒤 페이지로 넘어가지 않는다
-      className="fixed inset-0 m-auto max-h-[85vh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-black/40"
+      // modal-pop: 배경 dim → 상자가 아래에서 올라오는 등장 애니메이션 (globals.css)
+      // 배경 색도 거기서 다루므로 backdrop:bg-black/40은 뺐다
+      className="modal-pop fixed inset-0 m-auto max-h-[85vh] w-full max-w-2xl overflow-y-auto overscroll-contain rounded-2xl border border-slate-200 bg-white p-0 shadow-xl"
       onClose={onClose} // ESC로 닫아도 부모 상태가 같이 정리되도록
       onClick={(e) => {
         // 배경(dialog 자체)을 클릭했을 때만 닫는다. 내용은 div로 감싸져 있어 여기 안 걸린다.
@@ -239,7 +248,9 @@ export default function GroupModal({
                     <Link
                       key={post.id}
                       href={`/projects/${category}/${post.id}`}
-                      className="rounded-xl border border-slate-200 px-4 py-3 transition-colors hover:border-accent hover:text-accent"
+                      onNavigate={closeBeforeLeaving}
+                      // group: 이 링크에 hover하면 아래 "자세히 보기"도 같이 반응하게 하는 표시
+                      className="group rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 shadow-sm transition-all hover:border-accent hover:bg-accent-soft hover:shadow-md"
                     >
                       <span className="block font-medium">
                         {post.part ?? "기타"}
@@ -247,6 +258,13 @@ export default function GroupModal({
                       </span>
                       <span className="block text-sm text-slate-500">
                         {post.title}
+                      </span>
+                      {/* 눌러서 들어가는 곳이라는 표시 (카드 목록과 같은 문구) */}
+                      <span className="mt-2 block text-sm font-medium text-accent">
+                        자세히 보기{" "}
+                        <span className="inline-block transition-transform group-hover:translate-x-1">
+                          →
+                        </span>
                       </span>
                     </Link>
                   ))}
@@ -260,12 +278,14 @@ export default function GroupModal({
                 {/* ?groupId=를 달아 보내면 글쓰기 폼에서 소속이 미리 골라진다 */}
                 <Link
                   href={`/projects/${category}/new?groupId=${group.id}`}
+                  onNavigate={closeBeforeLeaving}
                   className="rounded bg-accent px-4 py-2 text-sm text-white hover:bg-accent-hover"
                 >
                   ＋ 상세 글 추가
                 </Link>
                 <Link
                   href={`/projects/${category}/groups/${group.id}/edit`}
+                  onNavigate={closeBeforeLeaving}
                   className="rounded border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
                 >
                   프로젝트 수정

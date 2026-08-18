@@ -184,7 +184,9 @@ export default function CertificatesSection() {
       {/* 등록·수정 폼 (관리자 전용) */}
       <dialog
         ref={dialogRef}
-        className="fixed inset-0 m-auto h-fit max-h-[85vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-0 shadow-xl backdrop:bg-black/40"
+        // modal-pop: 배경 dim → 상자가 아래에서 올라오는 등장 애니메이션 (globals.css)
+        // 배경 색도 거기서 다루므로 backdrop:bg-black/40은 뺐다
+        className="modal-pop fixed inset-0 m-auto h-fit max-h-[85vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-0 shadow-xl"
         onClose={() => setFormOpen(false)}
         onClick={(e) => {
           if (e.target === dialogRef.current) dialogRef.current.close();

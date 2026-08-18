@@ -71,7 +71,9 @@ export default function LoginBox() {
 
       <dialog
         ref={dialogRef} //ref로 등록하면서 dialogRef는 다이얼로그 객체가 됨
-        className="fixed inset-0 m-auto h-fit max-h-[85vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl border border-zinc-200 bg-white p-0 shadow-xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
+        // modal-pop: 배경 dim → 상자가 아래에서 올라오는 등장 애니메이션 (globals.css)
+        // 배경 색도 거기서 다루므로 backdrop:bg-black/40은 뺐다
+        className="modal-pop fixed inset-0 m-auto h-fit max-h-[85vh] w-full max-w-sm overflow-y-auto overscroll-contain rounded-xl border border-zinc-200 bg-white p-0 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
         onClose={handleClose} // 브라우저에 의해 dialog가 닫히면 여기서 안전하게 상태 초기화!
         onClick={(e) => {
           if (e.target === dialogRef.current) dialogRef.current.close(); //다이얼로그는 카드내용이고, 어두운 배경은 backdrop인데 이거는 타겟이 될수없어서 dialog가 타겟이 됨. 카드 내용은 div로 감쌌기 때문에 div로 나와서 이렇게함
