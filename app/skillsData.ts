@@ -38,6 +38,11 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
         level: "경험",
         detail: "Spring Security 기반 Access·Refresh 토큰 인증 처리",
       },
+      {
+        name: "PHP",
+        level: "경험",
+        detail: "론픽 운영 중인 서버 스크립트 확인·수정",
+      },
     ],
   },
   {
@@ -104,6 +109,11 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
         name: "MariaDB",
         level: "보통",
         detail: "팀 프로젝트 데이터베이스로 사용",
+      },
+      {
+        name: "MySQL",
+        level: "보통",
+        detail: "론픽 프로그램 데이터베이스 테이블 설계·쿼리 작성 및 유지보수",
       },
       {
         name: "Git",
