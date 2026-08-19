@@ -217,7 +217,8 @@ export default function Home() {
                           {skill.level}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                      {/* whitespace-pre-line: detail에 넣은 줄바꿈을 그대로 보여준다 */}
+                      <p className="mt-1 text-xs leading-5 whitespace-pre-line text-slate-500">
                         {skill.detail}
                       </p>
                     </li>
