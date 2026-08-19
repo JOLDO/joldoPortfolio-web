@@ -133,14 +133,8 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
       {
         name: "Python",
         level: "경험",
-        // 줄바꿈(\n)은 page.tsx의 whitespace-pre-line 덕분에 화면에 그대로 반영된다
-        detail: [
-          "공공 API 테스트",
-          "웹 크롤링 (BeautifulSoup, Selenium)",
-          "한국어 텍스트 분석 (Okt 형태소 분석, TF-IDF)",
-          "RAG·벡터 검색 (임베딩, 벡터 DB, 유사도 검색)",
-          "데이터 처리·시각화 (pandas, matplotlib)",
-        ].join("\n"),
+        detail:
+          "공공 API 활용 / 3차 팀 프로젝트 RAG 검색 (웹 크롤링, 임베딩, 벡터 DB 적재)",
       },
     ],
   },
