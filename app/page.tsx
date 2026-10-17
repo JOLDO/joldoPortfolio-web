@@ -32,7 +32,7 @@ export default function Home() {
             className="pointer-events-none absolute -top-24 -left-32 -z-10 h-[420px] w-[620px] rounded-full bg-accent-soft blur-3xl"
           />
           <p className="text-sm font-medium uppercase tracking-widest text-accent">
-            Frontend &amp; Backend Developer
+            Software Developer
           </p>
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.25] tracking-tight sm:text-6xl">
             <span className="text-accent">화면부터 서버까지</span>
@@ -143,12 +143,11 @@ export default function Home() {
               <p className="text-sm font-medium text-accent">
                 2019.11 — 2025.11
               </p>
-              <h3 className="mt-1 text-xl font-semibold">
-                론픽 · 프론트엔드 개발자
-              </h3>
+              <h3 className="mt-1 text-xl font-semibold">론픽 · 앱 개발자</h3>
               {/* TODO: 담당 업무 2~3줄 (무엇을 만들었고 무엇을 개선했는지) */}
               <p className="mt-2 max-w-2xl leading-7 text-slate-600">
-                웹/앱 프론트엔드 개발을 담당했습니다.
+                운동·헬스케어 장비의 안드로이드 앱(Java → Kotlin)과 C# WinForm
+                프로그램 개발
               </p>
             </li>
             <li className="relative pl-6">

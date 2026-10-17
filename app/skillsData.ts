@@ -51,7 +51,8 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
       {
         name: "Kotlin",
         level: "보통",
-        detail: "론픽 안드로이드 프로그램 개발·유지보수",
+        detail:
+          "론픽: MVVM 구조로 장비 앱 개발·유지보수 (약 4년)\n론픽: 외부 장비(트레드밀) 펌웨어 통신 및 UI 개발",
       },
       {
         name: "Room (SQLite)",
