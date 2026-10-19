@@ -40,7 +40,8 @@ export default function Home() {
             전부 만듭니다.
           </h1>
           <p className="max-w-xl text-lg leading-8 text-slate-600">
-            안녕하세요, 오태흔입니다. 앱 프론트엔드를 주로 맡아왔고,
+            안녕하세요, 오태흔입니다. 장비에 탑재되는 안드로이드 앱을 주로
+            맡아왔고,
             {/* 좁은 화면은 어차피 줄이 짧게 끊기니 넓은 화면에서만 줄을 바꾼다 */}
             <br className="hidden sm:inline" />
             이제는 서버와 DB까지 직접 다루며 서비스 전체를 만들 수 있는
