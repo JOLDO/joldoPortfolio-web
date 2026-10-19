@@ -54,7 +54,7 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
         name: "Android (Kotlin · Java)",
         level: "보통",
         detail:
-          "장비 탑재형 안드로이드 앱 6년\nJava (약 2년)\n   - C# WinForm -> Android 마이그레이션\n   - Service로 USB 시리얼 통신 분리\n   - BroadcastReceiver로 장치 연결 감지\nKotlin (약 4년)\n   - Java 앱을 Kotlin·MVVM 구조로 전환\n   - Coroutines·StateFlow 비동기 처리\n   - Jetpack(ViewModel, LiveData,\n      ViewBinding·DataBinding, Lifecycle)\n   - 외부 장비(트레드밀)와 시리얼 통신 및 UI 개발",
+          "장비 탑재형 안드로이드 앱 6년\nUSB 시리얼 통신으로 장비와 데이터 송수신·제어\nJava (약 2년)\n   - C# WinForm -> Android 마이그레이션\n   - Service로 USB 시리얼 통신 분리\n   - BroadcastReceiver로 장치 연결 감지\nKotlin (약 4년)\n   - Java 앱을 Kotlin·MVVM 구조로 전환\n   - Coroutines·StateFlow 비동기 처리\n   - Jetpack(ViewModel, LiveData,\n      ViewBinding·DataBinding, Lifecycle)\n   - 외부 장비(트레드밀) 프로토콜 분석 및 UI 개발",
       },
       {
         name: "MVVM",
@@ -113,7 +113,7 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
         name: "C# WinForm",
         level: "보통",
         detail:
-          "론픽 : 장비 프로그램 개발·유지보수,\n          외부 장비(ACCUNIQ) 연동 UI",
+          "론픽 : 장비 프로그램 개발·유지보수,\n          USB 시리얼 장비 통신,\n          외부 장비(ACCUNIQ) 연동 UI",
       },
       {
         name: "Arduino",
