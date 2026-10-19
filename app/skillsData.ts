@@ -27,7 +27,7 @@ export const SKILL_GROUPS: { title: string; skills: Skill[] }[] = [
         name: "Spring Boot",
         level: "보통",
         detail:
-          "팀 프로젝트 : 팀 프로젝트 서버 개발\n                      (도서관 웹, 여행 앱, 숙소 대여 서비스)",
+          "팀 프로젝트 : 서버 개발\n                      (도서관 웹, 여행 앱, 숙소 대여 서비스)",
       },
       {
         name: "Swagger UI",
