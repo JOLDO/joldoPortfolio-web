@@ -180,37 +180,15 @@ flowchart TD
 ### ✨ 담당 기능 (Backend)
 
 #### 1. 카테고리별 프로젝트 글 CRUD
-- 팀 / 개인 / 회사 3개 카테고리를 **컨트롤러 하나로 처리**: 경로를 `/{category:team|personal|company}-projects`로 정규식 제한 → 그 외 값은 404
 - 카테고리는 요청 body가 아니라 **URL 경로에서 받아 저장**
-- 본문(`content`)은 TipTap 에디터의 **JSON 문서를 문자열 그대로 LONGTEXT에 저장** (서버는 내용을 해석하지 않음)
-- 목록 응답은 본문을 뺀 가벼운 DTO(`ProjectSummaryResponse`), 상세에서만 본문 포함(`ProjectDetailResponse`)
+- 본문은 TipTap 에디터의 **JSON 문서를 문자열 그대로 LONGTEXT에 저장** (서버는 내용을 해석하지 않음)
+- 목록 응답은 본문을 뺀 가벼운 DTO, 상세에서만 본문 포함
 
-#### 2. 공개 / 비공개 (작성 중)
-- 글 · 그룹에 `published` 컬럼 → 방문자에게는 공개된 것만, **관리자(ADMIN)로 로그인하면 비공개 포함 전체** 조회
-- 같은 GET API에서 `request.isUserInRole("ADMIN")`으로 분기 → 방문자가 비공개 글 상세에 접근하면 404
-- 컬럼 추가 시 기존 데이터가 깨지지 않도록 `default true`, 요청에 값이 없으면 공개로 처리
+#### 2. 자격증 CRUD
+- 이름 · 발급기관 · 취득일, 취득일은 문자열로 저장하고 그 값으로 최신순 정렬
 
-#### 3. 프로젝트 그룹 (예: 팀 1차 / 2차, 회사 미플)
-- 글 여러 개를 하나로 묶는 `project_group` 테이블, 글은 `groupId` + `part`(웹 / 앱 / 서버 등)로 소속 표시
-- 그룹 목록(카드용) / 그룹 상세(모달용: 그룹 설명 + 맡은 일 + 소속 글 목록) API
-- 그룹 상세에 딸린 글 목록은 본문 제외, **오래된 순으로 고정**해 파트 순서가 흔들리지 않게 함
-- **그룹을 삭제해도 글은 지우지 않고 `groupId` / `part`만 비움** (실수로 그룹을 지워도 글이 사라지지 않게)
-- 연관관계(`@ManyToOne`) 대신 id만 저장 — 글 조회 시 그룹까지 같이 읽을 필요가 없어서
-
-#### 4. 자격증 CRUD
-- 이름 · 발급기관 · 취득일, 취득일은 `"2018.08"` 형식 문자열로 저장하고 그 값으로 최신순 정렬
-
-#### 5. 이미지 업로드
-- 에디터에서 올린 이미지를 서버 로컬 디스크(`uploads/`)에 저장하고 **절대 URL을 반환** → 에디터가 본문에 삽입
-- 파일명은 **UUID**로 바꿔 중복 방지, 확장자 화이트리스트(png / jpg / jpeg / gif / webp / svg), 저장 경로가 업로드 폴더 밖으로 나가지 않는지 검사(**경로 조작 방지**)
-- 최대 10MB, `/uploads/**`는 Security 필터를 아예 거치지 않는 정적 리소스로 제공
-
-#### 6. 관리자 인증 (JWT)
-- 회원가입 없음 → **서버 첫 실행 시 관리자 계정 1개를 자동 생성**(`DataInitializer`), 비밀번호는 BCrypt 해시로 저장
-- 로그인 성공 시 JWT 발급(유효 1시간), 이후 요청의 `Authorization: Bearer` 헤더를 `JwtAuthenticationFilter`가 검증
-- 권한 규칙: **GET은 누구나, 등록 · 수정 · 삭제(POST / PUT / DELETE)는 ADMIN만** — `SecurityConfig`에서 일괄 적용
-- 세션 없이 STATELESS, CSRF 비활성화(토큰을 헤더로 보내므로), CORS 허용 도메인은 설정 파일로 분리
-- DB 비밀번호 · JWT 키 · 관리자 계정은 git에 안 올라가는 `application-secret.properties`로 분리, `.example` 파일 제공
+#### 3. 이미지 업로드
+- 파일명은 **UUID**로 바꿔 중복 방지
 
 <a id="api-spec"></a>
 
