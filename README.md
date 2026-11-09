@@ -22,21 +22,21 @@
 
 | 히어로 · 네비게이션 | 기술 스택 |
 |:---:|:---:|
-| ![메인 히어로](docs/images/01_main_hero.png) | ![기술 스택](docs/images/02_skills.png) |
+| ![메인 히어로](docs/images/01_main_hero_v2.png) | ![기술 스택](docs/images/02_skills_v2.png) |
 | 상단 고정 네비, 스크롤 위치에 따라 **현재 섹션 강조** | 분야별 카드, 숙련도(상 · 보통 · 경험)를 **왼쪽 선 색**으로 구분 + 사용 근거 표시 |
 
 ### 프로젝트
 
 | 프로젝트 카드 목록 (가로 스크롤) | 프로젝트 상세 모달 | 상세 기록 (글) |
 |:---:|:---:|:---:|
-| ![프로젝트 카드 목록](docs/images/03_project_carousel.png) | ![프로젝트 모달](docs/images/04_project_modal.png) | ![상세 기록](docs/images/05_project_post.png) |
+| ![프로젝트 카드 목록](docs/images/03_project_carousel_v2.png) | ![프로젝트 모달](docs/images/04_project_modal_v2.png) | ![상세 기록](docs/images/05_project_post_v2.png) |
 | 팀 / 개인 / 회사 탭, 한 장씩 넘기는 가로 스크롤 카드 + 인디케이터 | 프로젝트 소개 · 내가 한 일 · **파트별(웹/앱/서버) 상세 기록** 링크 | TipTap으로 작성한 본문을 읽기 전용으로 렌더 |
 
 ### 관리자
 
 | 관리자 로그인 | 글 작성 · 수정 (TipTap) | 자격증 등록 |
 |:---:|:---:|:---:|
-| ![로그인](docs/images/06_admin_login.png) | ![에디터](docs/images/07_editor.png) | ![자격증](docs/images/08_certificates.png) |
+| ![로그인](docs/images/06_admin_login_v2.png) | ![에디터](docs/images/07_editor_v2.png) | ![자격증](docs/images/08_certificates_v2.png) |
 | `<dialog>` 모달 로그인, 로그인하면 등록 · 수정 · 삭제 버튼이 나타남 | 이미지를 **드래그 · 붙여넣기 · 버튼**으로 업로드해 원하는 위치에 삽입, 비공개(작성 중) 저장 | 모달 폼 하나로 등록과 수정을 같이 처리 |
 
 ---
