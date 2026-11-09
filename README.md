@@ -8,7 +8,7 @@
 - **저장소**: [프론트 joldoPortfolio-web](https://github.com/JOLDO/joldoPortfolio-web) / [백엔드 joldoPortfolio-server](https://github.com/JOLDO/joldoPortfolio-server)
 - **배포**: 2026.07 AWS(EC2 + RDS)에 배포 → 현재는 **AWS 프리티어 기간 만료로 서버 종료**
 - **담당**
-  - **Frontend (Next.js)**: 원페이지 메인(소개 · 경력 · 기술 · 프로젝트 · 자격증 · 연락처), 스크롤 위치 기반 네비 강조, 프로젝트 캐러셀 · 상세 모달, **TipTap 에디터로 글 작성/수정**(이미지 드래그 · 붙여넣기 업로드), 관리자 로그인 · JWT 만료 자동 로그아웃, **View Transition 페이지 전환 애니메이션**
+  - **Frontend (Next.js)**: 원페이지 메인(소개 · 경력 · 기술 · 프로젝트 · 자격증 · 연락처), 스크롤 위치 기반 네비 강조, 프로젝트 카드 목록(가로 스크롤) · 상세 모달, **TipTap 에디터로 글 작성/수정**(이미지 드래그 · 붙여넣기 업로드), 관리자 로그인 · JWT 만료 자동 로그아웃, **View Transition 페이지 전환 애니메이션**
   - **Backend (Spring Boot)**: 카테고리별 글 CRUD(컨트롤러 하나로 3종 처리), 공개/비공개, 프로젝트 그룹, 자격증 CRUD, 이미지 업로드(경로 조작 방지), 관리자 JWT 인증 · 권한 → [🖥 백엔드 섹션](#backend)
   - **배포**: GitHub Actions → EC2 자동 배포, Nginx 리버스 프록시, RDS(MariaDB) → [🚀 배포](#deploy)
 
@@ -27,10 +27,10 @@
 
 ### 프로젝트
 
-| 프로젝트 캐러셀 | 프로젝트 상세 모달 | 상세 기록 (글) |
+| 프로젝트 카드 목록 (가로 스크롤) | 프로젝트 상세 모달 | 상세 기록 (글) |
 |:---:|:---:|:---:|
-| ![프로젝트 캐러셀](docs/images/03_project_carousel.png) | ![프로젝트 모달](docs/images/04_project_modal.png) | ![상세 기록](docs/images/05_project_post.png) |
-| 팀 / 개인 / 회사 탭, 한 장씩 넘기는 캐러셀 + 인디케이터 | 프로젝트 소개 · 내가 한 일 · **파트별(웹/앱/서버) 상세 기록** 링크 | TipTap으로 작성한 본문을 읽기 전용으로 렌더 |
+| ![프로젝트 카드 목록](docs/images/03_project_carousel.png) | ![프로젝트 모달](docs/images/04_project_modal.png) | ![상세 기록](docs/images/05_project_post.png) |
+| 팀 / 개인 / 회사 탭, 한 장씩 넘기는 가로 스크롤 카드 + 인디케이터 | 프로젝트 소개 · 내가 한 일 · **파트별(웹/앱/서버) 상세 기록** 링크 | TipTap으로 작성한 본문을 읽기 전용으로 렌더 |
 
 > 🔗 API: [`GET /api/{category}-groups`](#api-usage), [`GET /api/{category}-groups/{id}`](#api-usage), [`GET /api/{category}-projects/{id}`](#api-usage)
 
@@ -78,7 +78,7 @@
 - **카테고리**(팀 / 개인 / 회사) → **그룹**(프로젝트 하나, 예: 1차 · 2차) → **글**(파트별 상세 기록, 예: 웹 · 앱 · 서버)
 - 카테고리별 API 경로를 `projectConfig.ts` 한 곳에서 관리, URL로 들어온 카테고리는 **타입 가드**(`isCategory`)로 검증
 - 고른 탭을 `?category=`에 남겨 다른 화면에 갔다 와도 보던 탭 유지 (`replaceState`라 기록은 안 쌓임)
-- 캐러셀: 카드 폭을 92%로 잡아 **다음 장이 살짝 걸쳐 보이게** 하고, 화면 중앙에 가장 가까운 카드를 현재 카드로 계산
+- 가로 스크롤 카드 목록: 카드 폭을 92%로 잡아 **다음 장이 살짝 걸쳐 보이게** 하고, 화면 중앙에 가장 가까운 카드를 현재 카드로 계산
 - 카드를 누르면 `<dialog>` 모달로 상세 표시, **세로로 긴 썸네일은 칸을 세로형으로 바꿔** 덜 잘리게 함
 - 응답이 늦게 와도 이미 다른 카드를 열었으면 버리도록 `ignore` 플래그로 **경쟁 상태 방지**
 
@@ -169,7 +169,7 @@ flowchart TD
 | 기능 | Method | URL | 인증 | 사용 화면 |
 |------|--------|-----|:---:|------|
 | 관리자 로그인 | POST | `/api/auth/login` | — | 로그인 모달 |
-| 프로젝트(그룹) 목록 | GET | `/api/{category}-groups` | 🔸 | 메인 캐러셀, 전체 보기 |
+| 프로젝트(그룹) 목록 | GET | `/api/{category}-groups` | 🔸 | 메인 프로젝트 카드 목록, 전체 보기 |
 | 프로젝트(그룹) 상세 + 글 목록 | GET | `/api/{category}-groups/{id}` | 🔸 | 프로젝트 모달, 프로젝트 수정 |
 | 프로젝트 등록 | POST | `/api/{category}-groups` | ✅ | 프로젝트 등록 |
 | 프로젝트 수정 | PUT | `/api/{category}-groups/{id}` | ✅ | 프로젝트 수정 |
@@ -200,9 +200,9 @@ flowchart TD
 | 다른 프로젝트 카드를 누르면 이전 내용이 잠깐 비침 | 받아온 데이터가 어느 그룹 것인지 구분하지 않음 | 응답을 **id와 함께 저장**해 현재 groupId와 같을 때만 표시 |
 | 글 수정 후 저장해도 화면이 안 바뀜 | 보기 모드로 먼저 바꾸면 `ContentViewer`가 옛 content로 마운트됨 | **새 데이터를 받아 갱신한 뒤** 보기 모드로 전환 |
 | 이미지를 연달아 넣으면 앞 이미지가 교체됨 | 삽입 직후 이미지가 선택된 상태로 남음 | 이미지 뒤에 **빈 문단을 함께 삽입**해 커서를 다음 줄로 이동 |
-| "preloaded but not used" 경고 | 캐러셀이 클라이언트에서 늦게 그려져 preload가 쓰이지 않음 | `preload` 대신 첫 장만 `fetchPriority="high"` |
+| "preloaded but not used" 경고 | 카드 목록이 클라이언트에서 늦게 그려져 preload가 쓰이지 않음 | `preload` 대신 첫 장만 `fetchPriority="high"` |
 | 개발 환경에서 백엔드 이미지가 안 뜸 | Next 16부터 사설 IP(localhost) 이미지 최적화 차단(SSRF 방어) | 개발 환경에서만 `dangerouslyAllowLocalIP` 허용 |
-| 트랙패드 가로 스와이프가 뒤로가기로 먹힘 | 캐러셀 끝에서 스크롤이 브라우저로 넘어감 | 캐러셀에 `overscroll-x-none` |
+| 트랙패드 가로 스와이프가 뒤로가기로 먹힘 | 카드 목록 끝에서 스크롤이 브라우저로 넘어감 | 카드 목록에 `overscroll-x-none` |
 
 ---
 
@@ -286,7 +286,7 @@ flowchart TD
 | 글 작성 | POST | `/api/{category}-projects` | ADMIN | 글쓰기 |
 | 글 수정 | PUT | `/api/{category}-projects/{id}` | ADMIN | 글 상세 (수정 모드) |
 | 글 삭제 | DELETE | `/api/{category}-projects/{id}` | ADMIN | 전체 보기 |
-| 그룹 목록 | GET | `/api/{category}-groups` | — | 메인 캐러셀 |
+| 그룹 목록 | GET | `/api/{category}-groups` | — | 메인 프로젝트 카드 목록 |
 | 그룹 상세 (+소속 글) | GET | `/api/{category}-groups/{id}` | — | 프로젝트 모달 |
 | 그룹 생성 / 수정 / 삭제 | POST / PUT / DELETE | `/api/{category}-groups[/{id}]` | ADMIN | 프로젝트 등록 · 수정 |
 | 자격증 목록 | GET | `/api/certificates` | — | 자격증 섹션 |
