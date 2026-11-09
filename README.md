@@ -266,34 +266,6 @@ erDiagram
 - 모든 테이블에 `created_at` / `updated_at`이 있고 `@PrePersist` · `@PreUpdate`로 자동 기록
 - 그룹과 글은 FK 제약 없이 **id만 저장** → 그룹을 지워도 글은 남고 `group_id`만 비워짐
 
-<a id="backend-trouble"></a>
-
-### 🐛 트러블슈팅 (Backend · 배포)
-
-| 문제 | 원인 | 해결 |
-|------|------|------|
-| 없는 글 요청(404)이나 인증 실패(401)가 전부 403으로 응답됨 | 예외 발생 시 Spring이 `/error`로 내부 재요청하는데, 이 요청도 Security 필터의 "ADMIN만" 규칙에 막힘 | `DispatcherType.ERROR` 요청은 permitAll → 원래 상태 코드가 그대로 전달됨 |
-| 배포 후 업로드 이미지 URL이 `http://localhost:8080/uploads/...`로 만들어져 깨짐 | Nginx 뒤에서는 Spring이 요청을 localhost에서 온 것으로 인식 | `server.forward-headers-strategy=framework` + Nginx에서 `X-Forwarded-*` 헤더 전달 |
-| RDS 연결 시 앱이 시작되지 않음 ("insecure transport are prohibited") | RDS가 SSL 연결만 허용(`require_secure_transport=ON`) | JDBC URL에 `?sslMode=trust` 추가 |
-| GitHub Actions에서 EC2 SSH 접속 타임아웃 | 보안 그룹 SSH 허용 범위가 내 IP로만 되어 있음 | GitHub 러너가 접속할 수 있도록 SSH 허용 범위 수정 |
-
-### 📂 주요 파일 (Backend)
-
-| 계층 | 파일 |
-|------|------|
-| Controller | `ProjectController`, `ProjectGroupController`, `CertificateController`, `ImageController`, `AuthController` |
-| Service | `ProjectService`, `ProjectGroupService`, `CertificateService`, `ImageStorageService`, `AuthService` |
-| Security | `SecurityConfig`, `JwtService`, `JwtAuthenticationFilter`, `CustomUserDetailsService` |
-| Config | `WebConfig`(업로드 정적 리소스), `DataInitializer`(관리자 계정 생성) |
-| Entity | `Project`, `ProjectGroup`, `Certificate`, `Member` |
-| Repository | `ProjectRepository`, `ProjectGroupRepository`, `CertificateRepository`, `MemberRepository` (JPA 쿼리 메서드) |
-| DTO (record) | `ProjectRequest` / `ProjectSummaryResponse` / `ProjectDetailResponse`, `ProjectGroupRequest` / `ProjectGroupSummaryResponse` / `ProjectGroupDetailResponse`, `CertificateRequest` / `CertificateResponse`, `LoginRequest` / `LoginResponse` |
-| 배포 | `.github/workflows/deploy.yml` |
-
----
-
-<a id="deploy"></a>
-
 ## 🚀 배포
 
 > 2026.07 AWS에 배포했으나, 현재는 **AWS 프리티어 기간 만료로 서버 종료**
