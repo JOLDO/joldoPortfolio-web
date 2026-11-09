@@ -4,7 +4,7 @@
 > 이 저장소(`joldoPortfolio-web`)는 **오태흔**이 만든 포트폴리오의 **Next.js 웹 프론트엔드**이며, 백엔드는 별도 Spring Boot 서버로 분리되어 있습니다.
 
 - **기간**: 2026.07.07 \~ 2026.10.19
-- **인원**: 1명 (기획 · 디자인 · 프론트엔드 · 백엔드 · 배포 전부)
+- **인원**: 1명
 - **저장소**: [프론트 joldoPortfolio-web](https://github.com/JOLDO/joldoPortfolio-web) / [백엔드 joldoPortfolio-server](https://github.com/JOLDO/joldoPortfolio-server)
 - **배포**: 2026.07 AWS(EC2 + RDS)에 배포 → 현재는 **AWS 프리티어 기간 만료로 서버 종료**
 - **담당**
