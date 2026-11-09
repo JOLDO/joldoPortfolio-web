@@ -8,8 +8,8 @@
 - **저장소**: [프론트 joldoPortfolio-web](https://github.com/JOLDO/joldoPortfolio-web) / [백엔드 joldoPortfolio-server](https://github.com/JOLDO/joldoPortfolio-server)
 - **배포**: 2026.07 AWS(EC2 + RDS)에 배포 → 현재는 **AWS 프리티어 기간 만료로 서버 종료**
 - **담당**
-  - **Frontend (Next.js)**: 원페이지 메인(소개 · 경력 · 기술 · 프로젝트 · 자격증 · 연락처), 스크롤 위치 기반 네비 강조, 프로젝트 카드 목록(가로 스크롤) · 상세 모달, **TipTap 에디터로 글 작성/수정**(이미지 드래그 · 붙여넣기 업로드), 관리자 로그인 · JWT 만료 자동 로그아웃, **View Transition 페이지 전환 애니메이션**
-  - **Backend (Spring Boot)**: 카테고리별 글 CRUD(컨트롤러 하나로 3종 처리), 공개/비공개, 프로젝트 그룹, 자격증 CRUD, 이미지 업로드(경로 조작 방지), 관리자 JWT 인증 · 권한 → [🖥 백엔드 섹션](#backend)
+  - **Frontend (Next.js)**: 원페이지 메인(소개 · 경력 · 기술 · 프로젝트 · 자격증 · 연락처), 스크롤 위치 기반 네비 강조, 프로젝트 카드 목록(가로 스크롤) · 상세 모달, **TipTap 에디터로 글 작성/수정**(이미지 드래그 · 붙여넣기 업로드), 관리자 로그인, **View Transition 페이지 전환 애니메이션**
+  - **Backend (Spring Boot)**: 카테고리별 글 CRUD, 공개/비공개, 프로젝트 그룹, 자격증 CRUD, 이미지 업로드, 관리자 JWT 인증 · 권한 → [🖥 백엔드 섹션](#backend)
   - **배포**: GitHub Actions → EC2 자동 배포, Nginx 리버스 프록시, RDS(MariaDB) → [🚀 배포](#deploy)
 
 ---
@@ -32,16 +32,12 @@
 | ![프로젝트 카드 목록](docs/images/03_project_carousel.png) | ![프로젝트 모달](docs/images/04_project_modal.png) | ![상세 기록](docs/images/05_project_post.png) |
 | 팀 / 개인 / 회사 탭, 한 장씩 넘기는 가로 스크롤 카드 + 인디케이터 | 프로젝트 소개 · 내가 한 일 · **파트별(웹/앱/서버) 상세 기록** 링크 | TipTap으로 작성한 본문을 읽기 전용으로 렌더 |
 
-> 🔗 API: [`GET /api/{category}-groups`](#api-usage), [`GET /api/{category}-groups/{id}`](#api-usage), [`GET /api/{category}-projects/{id}`](#api-usage)
-
 ### 관리자
 
 | 관리자 로그인 | 글 작성 · 수정 (TipTap) | 자격증 등록 |
 |:---:|:---:|:---:|
 | ![로그인](docs/images/06_admin_login.png) | ![에디터](docs/images/07_editor.png) | ![자격증](docs/images/08_certificates.png) |
 | `<dialog>` 모달 로그인, 로그인하면 등록 · 수정 · 삭제 버튼이 나타남 | 이미지를 **드래그 · 붙여넣기 · 버튼**으로 업로드해 원하는 위치에 삽입, 비공개(작성 중) 저장 | 모달 폼 하나로 등록과 수정을 같이 처리 |
-
-> 🔗 API: [`POST /api/auth/login`](#api-usage), [`POST /api/images`](#api-usage), [`POST · PUT · DELETE /api/certificates`](#api-usage)
 
 ---
 
@@ -53,9 +49,9 @@
 | 스타일 | **Tailwind CSS 4**, CSS 변수 기반 색 토큰, Geist 폰트(`next/font`) |
 | 상태 관리 | **React Context** (`AuthProvider`) — 로그인 상태 / 토큰 |
 | 네트워크 | **axios** (응답 인터셉터로 401 · 403 처리) |
-| 인증 | JWT (localStorage) + `loggedIn` 쿠키, **jwt-decode**로 만료 시각 확인 |
+| 인증 | JWT (localStorage) + `loggedIn` 쿠키 |
 | 에디터 | **TipTap 3** (StarterKit, Image 확장) — 본문을 JSON으로 저장 |
-| 애니메이션 | React `<ViewTransition>` (페이지 전환 · 제목 morph), CSS `@keyframes` (모달 등장) |
+| 애니메이션 | React `<ViewTransition>` (페이지 전환), CSS `@keyframes` (모달 등장) |
 | 배포 | GitHub Actions, AWS EC2, Nginx, systemd |
 
 ---
@@ -118,7 +114,7 @@ flowchart TD
         LY[쿠키로 초기 로그인 상태 읽기<br/>ViewTransition]
     end
     subgraph Context["🧠 Context"]
-        AP[AuthProvider<br/>token · login · logout<br/>401/403 인터셉터 · exp 타이머]
+        AP[AuthProvider<br/>token · login · logout<br/>401/403 인터셉터]
     end
     subgraph Pages["📄 Pages"]
         P1["/ (page.tsx)"]
@@ -148,8 +144,6 @@ flowchart TD
     Components -->|axios + Bearer| API
     D3 -.->|baseURL| API
 ```
-
-<a id="api-usage"></a>
 
 ## 🐛 트러블슈팅 (Frontend)
 
