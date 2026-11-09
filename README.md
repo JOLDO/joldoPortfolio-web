@@ -151,32 +151,6 @@ flowchart TD
 
 <a id="api-usage"></a>
 
-## 📡 프론트에서 호출하는 API
-
-> `{category}` = `team` · `personal` · `company` (예: `/api/team-groups`, `/api/personal-projects`)
-> 인증 ✅ = `Authorization: Bearer {token}` 필수, 🔸 = 토큰이 있으면 비공개까지 응답
-
-| 기능 | Method | URL | 인증 | 사용 화면 |
-|------|--------|-----|:---:|------|
-| 관리자 로그인 | POST | `/api/auth/login` | — | 로그인 모달 |
-| 프로젝트(그룹) 목록 | GET | `/api/{category}-groups` | 🔸 | 메인 프로젝트 카드 목록, 전체 보기 |
-| 프로젝트(그룹) 상세 + 글 목록 | GET | `/api/{category}-groups/{id}` | 🔸 | 프로젝트 모달, 프로젝트 수정 |
-| 프로젝트 등록 | POST | `/api/{category}-groups` | ✅ | 프로젝트 등록 |
-| 프로젝트 수정 | PUT | `/api/{category}-groups/{id}` | ✅ | 프로젝트 수정 |
-| 프로젝트 삭제 (글은 남음) | DELETE | `/api/{category}-groups/{id}` | ✅ | 프로젝트 모달 |
-| 글 목록 | GET | `/api/{category}-projects` | 🔸 | 전체 보기 (낱개 글) |
-| 글 상세 | GET | `/api/{category}-projects/{id}` | 🔸 | 글 상세 |
-| 글 작성 | POST | `/api/{category}-projects` | ✅ | 글쓰기 |
-| 글 수정 | PUT | `/api/{category}-projects/{id}` | ✅ | 글 상세 (수정 모드) |
-| 글 삭제 | DELETE | `/api/{category}-projects/{id}` | ✅ | 전체 보기 |
-| 이미지 업로드 | POST | `/api/images` (multipart `file`) | ✅ | 에디터, 썸네일 |
-| 자격증 목록 | GET | `/api/certificates` | — | 메인 자격증 섹션, 네비 |
-| 자격증 등록 / 수정 / 삭제 | POST · PUT · DELETE | `/api/certificates`, `/api/certificates/{id}` | ✅ | 자격증 모달 |
-
-> 요청 / 응답 예시는 [📡 API 명세 (Backend)](#api-spec) 참고
-
----
-
 ## 🐛 트러블슈팅 (Frontend)
 
 | 문제 | 원인 | 해결 |
@@ -193,22 +167,6 @@ flowchart TD
 | "preloaded but not used" 경고 | 카드 목록이 클라이언트에서 늦게 그려져 preload가 쓰이지 않음 | `preload` 대신 첫 장만 `fetchPriority="high"` |
 | 개발 환경에서 백엔드 이미지가 안 뜸 | Next 16부터 사설 IP(localhost) 이미지 최적화 차단(SSRF 방어) | 개발 환경에서만 `dangerouslyAllowLocalIP` 허용 |
 | 트랙패드 가로 스와이프가 뒤로가기로 먹힘 | 카드 목록 끝에서 스크롤이 브라우저로 넘어감 | 카드 목록에 `overscroll-x-none` |
-
----
-
-## 📂 주요 파일 (Frontend)
-
-| 구분 | 파일 |
-|------|------|
-| 레이아웃 · 인증 | `app/layout.tsx`, `app/AuthProvider.tsx`, `app/LoginBox.tsx`, `app/apiBase.ts` |
-| 메인 | `app/page.tsx`, `app/NavLinks.tsx`, `app/SectionLabel.tsx`, `app/skillsData.ts` |
-| 프로젝트 | `app/ProjectsSection.tsx`, `app/projects/GroupCards.tsx`, `app/projects/GroupModal.tsx`, `app/projects/projectConfig.ts` |
-| 프로젝트 페이지 | `app/projects/[category]/page.tsx`, `[id]/page.tsx`, `new/page.tsx`, `groups/new/page.tsx`, `groups/[groupId]/edit/page.tsx` |
-| 에디터 | `app/projects/TiptapEditor.tsx`, `app/projects/ContentViewer.tsx` |
-| 자격증 | `app/CertificatesSection.tsx` |
-| 스타일 · 설정 | `app/globals.css`(색 토큰 · 전환 애니메이션 · 에디터 스타일), `next.config.ts`, `.github/workflows/deploy.yml` |
-
----
 
 <a id="backend"></a>
 
