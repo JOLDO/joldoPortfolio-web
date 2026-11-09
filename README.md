@@ -284,13 +284,6 @@ flowchart LR
     BE --> RDS[(RDS MariaDB)]
 ```
 
-- 프론트와 백엔드를 **EC2 한 대에 systemd 서비스로 실행**, Nginx가 경로로 나눠 전달(리버스 프록시)
-- 같은 주소(오리진)라 운영에서는 **CORS 설정이 필요 없음** → 프론트는 `NEXT_PUBLIC_API_BASE`를 비워 둠
-- 프론트: `main` push → GitHub Actions가 EC2에 SSH 접속해 `git pull → npm ci → npm run build → systemctl restart`
-- 백엔드: `main` push → GitHub Actions가 `bootJar` 빌드 후 jar를 EC2로 복사하고 서비스 재시작
-- t3.micro 메모리가 1GB라 빌드 중 메모리 부족에 대비해 **swap 2GB 추가**
-- 개발에서는 `.env.development`의 `NEXT_PUBLIC_API_BASE=http://localhost:8080`으로 백엔드에 직접 요청
-
 ---
 
 ## ▶ 실행 방법
