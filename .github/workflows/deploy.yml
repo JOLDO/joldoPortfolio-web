@@ -1,8 +1,11 @@
 name: Deploy Frontend
 
+# EC2 서버 종료(AWS 프리티어 만료)로 자동 배포 중지. 서버 재가동 시 아래 push 트리거를 다시 켜면 된다.
+# on:
+#   push:
+#     branches: [main]
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
