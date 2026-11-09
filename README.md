@@ -91,9 +91,7 @@
 
 ### 6. 화면 전환 애니메이션
 - `next.config.ts`에서 `experimental.viewTransition`을 켜고, 레이아웃 전체를 `<ViewTransition default="page-fade-slide">`로 감싸 **페이지 전환 시 페이드 + 슬라이드**
-- 목록 페이지 제목은 `name`을 공유해 **앞으로 이동할 때만 morph**
 - 모달은 `modal-pop` 클래스로 **배경 dim + 아래에서 올라오는 등장 애니메이션**
-- `prefers-reduced-motion` 사용자는 애니메이션 제거
 
 ---
 
